@@ -820,7 +820,7 @@
         }
 
         .feature-item {
-            background: linear-gradient(135f, #f8f9ff 0%, #e6f3ff 100%);
+            background: linear-gradient(135deg, #f8f9ff 0%, #e6f3ff 100%);
             border-radius: 10px;
             padding: 20px;
             border-left: 4px solid #667eea;
@@ -881,7 +881,7 @@
             <div class="header-content">
                 <h1>🤖 REPRISE AI BELGIQUE</h1>
                 <div class="subtitle">Évaluation Automobile Professionnelle Augmentée par Intelligence Artificielle</div>
-                <div class="ai-badge">🧠 Powered by OpenAI GPT-4 Vision + Votre Expertise</div>
+                <div class="ai-badge">🧠 Powered by OpenAI GPT-4 Vision + Expertise Automobile</div>
             </div>
         </div>
 
@@ -959,7 +959,7 @@
                     <h3>Analyse Photo IA</h3>
                     <p><strong>Glissez vos photos ici ou cliquez</strong></p>
                     <p>L'IA analysera automatiquement l'état du véhicule</p>
-                    <small>Recommandé: Extérieur 360°, intérieur, compteur, défauts éventuels</small>
+                    <small>Jusqu'à 20 photos acceptées - Plus de photos = analyse plus précise</small>
                 </div>
                 <input type="file" id="photoInputAI" multiple accept="image/*" style="display: none;">
                 
@@ -999,6 +999,14 @@
                     <div class="form-group">
                         <label for="modelAI">🚗 Modèle</label>
                         <input type="text" id="modelAI" placeholder="Ex: Golf, 3008, Corolla..." required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="engineAI">🔧 Motorisation (optionnel mais recommandé)</label>
+                        <input type="text" id="engineAI" placeholder="Ex: 1.2 PureTech 130, 2.0 TDI 150, 1.5 dCi...">
+                        <small style="color: #7f8c8d; font-size: 13px; display: block; margin-top: 5px;">
+                            💡 Aide l'IA à détecter les problèmes de fiabilité spécifiques
+                        </small>
                     </div>
 
                     <div class="form-group">
@@ -1058,17 +1066,17 @@ Saisissez les informations pour voir le calcul en temps réel...
 
                         <div class="form-group">
                             <label for="warrantyFee">🛡️ Frais de garantie (€)</label>
-                            <input type="number" id="warrantyFee" value="1000" min="0">
+                            <input type="number" id="warrantyFee" value="1500" min="0">
                         </div>
 
                         <div class="form-group">
                             <label for="processingFee">🔧 Frais de traitement (€)</label>
-                            <input type="number" id="processingFee" value="1000" min="0">
+                            <input type="number" id="processingFee" value="1500" min="0">
                         </div>
 
                         <div class="form-group">
                             <label for="marginFee">💼 Marge souhaitée (€)</label>
-                            <input type="number" id="marginFee" value="1000" min="0">
+                            <input type="number" id="marginFee" value="2000" min="0">
                         </div>
 
                         <div class="calculation-preview" id="marketPreview">
@@ -1079,7 +1087,7 @@ Saisissez le prix marché pour voir le calcul...
                     <!-- Contexte IA Personnalisé -->
                     <div class="ai-prompt-section">
                         <h4>🧠 Contexte IA Personnalisé</h4>
-                        <textarea id="aiContext" rows="3" placeholder="Ex: Client pressé, véhicule familial, garage KGM Bruxelles, concurrence forte MyWay...">Client KGM Belgique, évaluation pour reprise immédiate, marché belge avec zones LEZ, concurrence MyWay/Fastback.</textarea>
+                        <textarea id="aiContext" rows="3" placeholder="Ex: Client pressé, véhicule familial, garage KGM Bruxelles, concurrence forte MyWay...">Client KGM Belgique, évaluation pour reprise immédiate, marché belge avec zones LEZ, concurrence MyWay/Fastback. Attention aux problèmes de fiabilité spécifiques selon motorisation.</textarea>
                     </div>
 
                     <button type="submit" class="evaluate-btn-ai">
@@ -1103,7 +1111,7 @@ Saisissez le prix marché pour voir le calcul...
                         </div>
                         <div class="feature-item">
                             <div class="feature-title">🧠 Évaluation Contextuelle</div>
-                            <div>Analyse marché belge, LEZ, tendances actuelles</div>
+                            <div>Analyse marché belge, LEZ, problèmes fiabilité</div>
                         </div>
                         <div class="feature-item">
                             <div class="feature-title">🎯 Arguments Personnalisés</div>
@@ -1172,6 +1180,34 @@ Saisissez le prix marché pour voir le calcul...
         let currentApiKey = '';
         let currentMethod = 'purchase';
 
+        // Base de données des problèmes de fiabilité connus
+        const reliabilityData = {
+            '1.2 puretech': {
+                issues: ['Courroie distribution humide', 'Problèmes injection', 'Turbo fragile'],
+                severity: 'HIGH',
+                depreciation: 0.25, // -25% supplémentaire
+                brands: ['peugeot', 'citroen']
+            },
+            '1.0 ecoboost': {
+                issues: ['Problèmes refroidissement', 'Cylindres usure prématurée'],
+                severity: 'HIGH',
+                depreciation: 0.20,
+                brands: ['ford']
+            },
+            '1.4 tsi': {
+                issues: ['Chaîne distribution', 'Problèmes turbo'],
+                severity: 'MEDIUM',
+                depreciation: 0.15,
+                brands: ['volkswagen', 'audi', 'seat', 'skoda']
+            },
+            '2.0 tdi': {
+                issues: ['EGR', 'Injecteurs', 'Volant moteur'],
+                severity: 'MEDIUM',
+                depreciation: 0.10,
+                brands: ['volkswagen', 'audi', 'seat', 'skoda']
+            }
+        };
+
         // Initialisation
         document.addEventListener('DOMContentLoaded', function() {
             initializeYearDropdownAI();
@@ -1221,7 +1257,7 @@ Saisissez le prix marché pour voir le calcul...
             });
 
             // Real-time calculation updates
-            const inputs = ['purchasePrice', 'purchaseDate', 'marketPrice', 'warrantyFee', 'processingFee', 'marginFee', 'yearAI', 'mileageAI', 'fuelAI'];
+            const inputs = ['purchasePrice', 'purchaseDate', 'marketPrice', 'warrantyFee', 'processingFee', 'marginFee', 'yearAI', 'mileageAI', 'fuelAI', 'engineAI'];
             inputs.forEach(id => {
                 const element = document.getElementById(id);
                 if (element) {
@@ -1342,7 +1378,8 @@ Saisissez le prix marché pour voir le calcul...
 
         async function addPhotosAI(files) {
             for (const file of files) {
-                if (file.type.startsWith('image/') && uploadedPhotosAI.length < 6) {
+                // Augmenté la limite de 6 à 20 photos
+                if (file.type.startsWith('image/') && uploadedPhotosAI.length < 20) {
                     uploadedPhotosAI.push(file);
                     updatePhotoGrid();
                     
@@ -1377,6 +1414,11 @@ Saisissez le prix marché pour voir le calcul...
         function removePhoto(index) {
             uploadedPhotosAI.splice(index, 1);
             updatePhotoGrid();
+            
+            // Mise à jour de l'aperçu si plus de photos
+            if (uploadedPhotosAI.length === 0) {
+                document.getElementById('aiAnalysisPreview').innerHTML = '<div>🤖 Prêt pour l\'analyse IA des photos...</div>';
+            }
         }
 
         async function analyzePhotoWithAI(file) {
@@ -1384,7 +1426,7 @@ Saisissez le prix marché pour voir le calcul...
             preview.innerHTML = `
                 <div class="ai-loading">
                     <div class="ai-spinner"></div>
-                    <div>🤖 IA analyse la photo en cours...</div>
+                    <div>🤖 IA analyse la photo ${uploadedPhotosAI.length}/${uploadedPhotosAI.length}...</div>
                 </div>
             `;
 
@@ -1404,7 +1446,7 @@ Saisissez le prix marché pour voir le calcul...
                             content: [
                                 {
                                     type: "text",
-                                    text: "Analyse cette photo de véhicule automobile pour une évaluation de reprise professionnelle en Belgique. Évalue: état carrosserie, intérieur, usure générale, défauts visibles. Donne un score sur 10 et un ajustement prix en euros (positif/négatif). Sois précis et professionnel. Format: État détecté + Score X/10 + Ajustement ±X€"
+                                    text: "Analyse cette photo de véhicule automobile pour une évaluation de reprise professionnelle en Belgique. Évalue: état carrosserie, intérieur, usure générale, défauts visibles, signes d'accident, cohérence kilométrage. Donne un score sur 10 et un ajustement prix en euros (positif/négatif). Sois précis et critique. Format: État détecté + Score X/10 + Ajustement ±X€ + Recommandations"
                                 },
                                 {
                                     type: "image_url",
@@ -1414,16 +1456,20 @@ Saisissez le prix marché pour voir le calcul...
                                 }
                             ]
                         }],
-                        max_tokens: 300
+                        max_tokens: 400
                     })
                 });
+
+                if (!response.ok) {
+                    throw new Error(`API Error: ${response.status}`);
+                }
 
                 const data = await response.json();
                 const analysis = data.choices[0].message.content;
 
                 preview.innerHTML = `
                     <div style="text-align: left; position: relative; z-index: 1;">
-                        <strong>🤖 Analyse IA Réelle :</strong><br>
+                        <strong>🤖 Analyse IA Réelle (Photo ${uploadedPhotosAI.length}) :</strong><br>
                         ${analysis}
                     </div>
                 `;
@@ -1431,8 +1477,8 @@ Saisissez le prix marché pour voir le calcul...
                 console.error('Erreur IA:', error);
                 preview.innerHTML = `
                     <div style="color: #e74c3c; position: relative; z-index: 1;">
-                        ❌ Erreur IA temporaire.<br>
-                        <small>Basculement vers analyse intelligente...</small>
+                        ❌ Erreur IA (${error.message}).<br>
+                        <small>Vérifiez votre clé API ou basculement vers analyse intelligente...</small>
                     </div>
                 `;
                 await simulatePhotoAnalysis(file);
@@ -1444,28 +1490,30 @@ Saisissez le prix marché pour voir le calcul...
             preview.innerHTML = `
                 <div class="ai-loading">
                     <div class="ai-spinner"></div>
-                    <div>🤖 IA analyse la photo...</div>
+                    <div>🤖 IA analyse la photo ${uploadedPhotosAI.length}...</div>
                 </div>
             `;
 
-            await new Promise(resolve => setTimeout(resolve, 2000));
+            await new Promise(resolve => setTimeout(resolve, 1500));
 
             const analyses = [
-                "🟢 Carrosserie: État correct, quelques micro-rayures normales d'usage. Score: 7.2/10. Ajustement: +100€",
-                "🟡 Intérieur: Usure normale sièges avant, volant légèrement usé. Score: 6.8/10. Ajustement: -150€", 
-                "🟢 Mécanique visible: Compartiment moteur propre, bon entretien apparent. Score: 8.1/10. Ajustement: +200€",
-                "🟡 Éclairage: Phares légèrement oxydés, impact esthétique mineur. Score: 6.5/10. Ajustement: -100€",
-                "🟢 État général: Véhicule bien entretenu pour l'âge, cohérent avec kilométrage. Score: 7.5/10. Ajustement: +150€",
-                "🟡 Pneus: Usure inégale détectée, remplacement proche nécessaire. Score: 5.8/10. Ajustement: -300€"
+                "🟢 Carrosserie: État correct, quelques micro-rayures normales d'usage. Score: 7.2/10. Ajustement: +150€",
+                "🟡 Intérieur: Usure normale sièges avant, volant légèrement patiné. Score: 6.8/10. Ajustement: -200€", 
+                "🟢 Mécanique visible: Compartiment moteur propre, bon entretien apparent. Score: 8.1/10. Ajustement: +300€",
+                "🟡 Éclairage: Phares légèrement ternis, impact esthétique mineur. Score: 6.5/10. Ajustement: -150€",
+                "🟢 État général: Véhicule bien entretenu, cohérent avec kilométrage annoncé. Score: 7.5/10. Ajustement: +200€",
+                "🔴 Pneus: Usure importante détectée, remplacement nécessaire proche. Score: 4.2/10. Ajustement: -500€",
+                "🟡 Carrosserie: Impact portière détecté, réparation visible. Score: 5.8/10. Ajustement: -400€",
+                "🟢 Intérieur: Excellent état, cuir bien entretenu. Score: 8.5/10. Ajustement: +350€"
             ];
 
             const randomAnalysis = analyses[Math.floor(Math.random() * analyses.length)];
             
             preview.innerHTML = `
                 <div style="text-align: left; position: relative; z-index: 1;">
-                    <strong>🤖 Analyse IA Simulée :</strong><br>
+                    <strong>🤖 Analyse IA Simulée (Photo ${uploadedPhotosAI.length}) :</strong><br>
                     ${randomAnalysis}<br>
-                    <small style="opacity: 0.8;">Basé sur patterns d'analyse automobile</small>
+                    <small style="opacity: 0.8;">Analyse ${uploadedPhotosAI.length}/20 photos - Plus de photos = analyse plus précise</small>
                 </div>
             `;
         }
@@ -1492,6 +1540,7 @@ Saisissez le prix marché pour voir le calcul...
             const year = parseInt(document.getElementById('yearAI')?.value || new Date().getFullYear());
             const mileage = parseFloat(document.getElementById('mileageAI')?.value || 0);
             const fuel = document.getElementById('fuelAI')?.value;
+            const engine = document.getElementById('engineAI')?.value?.toLowerCase() || '';
             
             let preview = '';
             
@@ -1509,15 +1558,26 @@ Saisissez le prix marché pour voir le calcul...
                     kmDepreciation = priceHT * (excessKm / expectedKmPerYear) * 0.20;
                 }
                 
-                const estimatedValue = Math.max(1000, priceHT - temporalDepreciation - kmDepreciation);
+                // Vérification problèmes de fiabilité
+                let reliabilityPenalty = 0;
+                let reliabilityWarning = '';
+                for (const [enginePattern, data] of Object.entries(reliabilityData)) {
+                    if (engine.includes(enginePattern)) {
+                        reliabilityPenalty = priceHT * data.depreciation;
+                        reliabilityWarning = `\nATTENTION ${enginePattern.toUpperCase()}: -€${Math.round(reliabilityPenalty).toLocaleString()} (${data.issues.join(', ')})`;
+                        break;
+                    }
+                }
+                
+                const estimatedValue = Math.max(1000, priceHT - temporalDepreciation - kmDepreciation - reliabilityPenalty);
                 
                 preview = `Prix d'achat TTC: €${purchasePrice.toLocaleString()}
 Prix HT (- TVA 21%): €${Math.round(priceHT).toLocaleString()}
 Dépréciation ${ageInYears} ans: -€${Math.round(temporalDepreciation).toLocaleString()}
-Dépréciation km: -€${Math.round(kmDepreciation).toLocaleString()}
+Dépréciation km: -€${Math.round(kmDepreciation).toLocaleString()}${reliabilityWarning}
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 ESTIMATION BASE: €${Math.round(estimatedValue).toLocaleString()}
-(+ Ajustement IA selon contexte)`;
+(+ Ajustement IA selon contexte et photos)`;
             } else {
                 preview = 'Saisissez le prix d\'achat pour voir le calcul en temps réel...';
             }
@@ -1527,9 +1587,9 @@ ESTIMATION BASE: €${Math.round(estimatedValue).toLocaleString()}
 
         function updateMarketPreview() {
             const marketPrice = parseFloat(document.getElementById('marketPrice')?.value || 0);
-            const warrantyFee = parseFloat(document.getElementById('warrantyFee')?.value || 1000);
-            const processingFee = parseFloat(document.getElementById('processingFee')?.value || 1000);
-            const marginFee = parseFloat(document.getElementById('marginFee')?.value || 1000);
+            const warrantyFee = parseFloat(document.getElementById('warrantyFee')?.value || 1500);
+            const processingFee = parseFloat(document.getElementById('processingFee')?.value || 1500);
+            const marginFee = parseFloat(document.getElementById('marginFee')?.value || 2000);
             
             let preview = '';
             
@@ -1543,7 +1603,7 @@ ESTIMATION BASE: €${Math.round(estimatedValue).toLocaleString()}
 - Marge: €${marginFee.toLocaleString()}
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 ESTIMATION BASE: €${estimatedValue.toLocaleString()}
-(+ Ajustement IA selon contexte)`;
+(+ Ajustement IA selon contexte et photos)`;
             } else {
                 preview = 'Saisissez le prix marché pour voir le calcul...';
             }
@@ -1576,12 +1636,13 @@ ESTIMATION BASE: €${estimatedValue.toLocaleString()}
             const year = parseInt(document.getElementById('yearAI').value);
             const mileage = parseFloat(document.getElementById('mileageAI').value);
             const fuel = document.getElementById('fuelAI').value;
+            const engine = document.getElementById('engineAI').value?.toLowerCase() || '';
 
             let basePrice = 0;
             let breakdown = {};
 
             if (currentMethod === 'purchase') {
-                const purchasePrice = parseFloat(document.getElementById('purchasePrice').value || 20000);
+                const purchasePrice = parseFloat(document.getElementById('purchasePrice').value || 25000);
                 const priceHT = purchasePrice / 1.21;
                 const ageInYears = new Date().getFullYear() - year;
                 const depreciationRate = 0.20;
@@ -1592,10 +1653,19 @@ ESTIMATION BASE: €${estimatedValue.toLocaleString()}
                 const excessKm = Math.max(0, mileage - expectedTotalKm);
                 const kmDepreciation = priceHT * (excessKm / expectedKmPerYear) * 0.20;
                 
-                basePrice = Math.max(1000, priceHT - temporalDepreciation - kmDepreciation);
-                breakdown = { priceHT, temporalDepreciation, kmDepreciation };
+                // Problèmes de fiabilité
+                let reliabilityPenalty = 0;
+                for (const [enginePattern, data] of Object.entries(reliabilityData)) {
+                    if (engine.includes(enginePattern)) {
+                        reliabilityPenalty = priceHT * data.depreciation;
+                        break;
+                    }
+                }
+                
+                basePrice = Math.max(1000, priceHT - temporalDepreciation - kmDepreciation - reliabilityPenalty);
+                breakdown = { priceHT, temporalDepreciation, kmDepreciation, reliabilityPenalty };
             } else {
-                const marketPrice = parseFloat(document.getElementById('marketPrice').value || 15000);
+                const marketPrice = parseFloat(document.getElementById('marketPrice').value || 18000);
                 const warrantyFee = parseFloat(document.getElementById('warrantyFee').value);
                 const processingFee = parseFloat(document.getElementById('processingFee').value);
                 const marginFee = parseFloat(document.getElementById('marginFee').value);
@@ -1610,6 +1680,7 @@ ESTIMATION BASE: €${estimatedValue.toLocaleString()}
         async function calculateWithRealAI(traditionalResult) {
             const brand = document.getElementById('brandAI').value;
             const model = document.getElementById('modelAI').value;
+            const engine = document.getElementById('engineAI').value;
             const year = document.getElementById('yearAI').value;
             const mileage = document.getElementById('mileageAI').value;
             const fuel = document.getElementById('fuelAI').value;
@@ -1626,19 +1697,23 @@ ESTIMATION BASE: €${estimatedValue.toLocaleString()}
                         model: "gpt-4o",
                         messages: [{
                             role: "user",
-                            content: `Tu es un expert automobile spécialisé marché belge. Évalue ce véhicule pour reprise professionnelle :
+                            content: `Tu es un expert automobile spécialisé marché belge et problèmes de fiabilité. Évalue ce véhicule pour reprise professionnelle :
 
-Véhicule: ${brand} ${model} ${year}, ${mileage}km, ${fuel}
+Véhicule: ${brand} ${model} ${year}
+Motorisation: ${engine}
+${mileage}km, ${fuel}
 Calcul traditionnel: €${Math.round(traditionalResult.price)}
 Contexte: ${context}
 Photos uploadées: ${uploadedPhotosAI.length}
 
+ATTENTION: Connais-tu des problèmes de fiabilité spécifiques à cette motorisation? (ex: 1.2 PureTech courroie humide, 1.0 EcoBoost refroidissement, etc.)
+
 Analyse et donne:
-1. Prix ajusté selon tendances marché belge 2025 (LEZ, évolutions réglementaires)
-2. 3 points forts pour négociation client
-3. 2 points d'attention/risques
+1. Prix ajusté selon marché belge 2025 + problèmes fiabilité
+2. 3 points forts réels pour négociation
+3. 2 points d'attention/risques RÉELS (fiabilité incluse)
 4. Score confiance (1-10)
-5. Reasoning court
+5. Reasoning détaillé
 
 Format JSON strict:
 {
@@ -1647,12 +1722,16 @@ Format JSON strict:
   "strengths": ["point1", "point2", "point3"],
   "concerns": ["point1", "point2"],
   "confidence": nombre,
-  "reasoning": "explication 1-2 phrases"
+  "reasoning": "explication détaillée problèmes fiabilité si applicable"
 }`
                         }],
-                        max_tokens: 500
+                        max_tokens: 700
                     })
                 });
+
+                if (!response.ok) {
+                    throw new Error(`API Error: ${response.status}`);
+                }
 
                 const data = await response.json();
                 const result = JSON.parse(data.choices[0].message.content);
@@ -1664,40 +1743,66 @@ Format JSON strict:
         }
 
         async function calculateWithSimulatedAI(traditionalResult) {
-            await new Promise(resolve => setTimeout(resolve, 2000));
+            await new Promise(resolve => setTimeout(resolve, 2500));
 
-            const adjustmentFactor = 0.92 + (Math.random() * 0.16); // ±8%
-            const aiPrice = traditionalResult.price * adjustmentFactor;
-            
             const brand = document.getElementById('brandAI').value;
+            const engine = document.getElementById('engineAI').value?.toLowerCase() || '';
             const fuel = document.getElementById('fuelAI').value;
             const year = parseInt(document.getElementById('yearAI').value);
             const age = new Date().getFullYear() - year;
             
+            // Vérifier problèmes de fiabilité connus
+            let reliabilityIssue = null;
+            for (const [enginePattern, data] of Object.entries(reliabilityData)) {
+                if (engine.includes(enginePattern)) {
+                    reliabilityIssue = data;
+                    break;
+                }
+            }
+            
+            let adjustmentFactor = 0.95 + (Math.random() * 0.10); // ±5% de base
+            
+            // Ajustement selon problèmes de fiabilité
+            if (reliabilityIssue) {
+                adjustmentFactor -= reliabilityIssue.depreciation;
+            }
+            
+            const aiPrice = traditionalResult.price * adjustmentFactor;
+            
             const strengths = [
-                `Marque ${brand.toUpperCase()} avec bonne réputation marché belge`,
-                `Véhicule de ${year} dans segment porteur`,
-                `Kilométrage cohérent pour l'âge du véhicule`
+                `Marque ${brand.toUpperCase()} reconnue sur le marché belge`,
+                age <= 3 ? "Véhicule récent sous garantie" : "Dépréciation principale déjà effectuée",
+                fuel === 'essence' ? "Carburant essence sans impact LEZ" : "Technologie éprouvée"
             ];
             
-            const concerns = [
+            let concerns = [
                 age > 5 ? "Dépréciation accélérée après 5 ans" : "Évolution rapide technologie automobile",
-                fuel === 'diesel' ? "Impact zones LEZ et évolution réglementaire" : "Concurrence électrique croissante"
+                fuel === 'diesel' ? "Impact zones LEZ et évolution réglementaire défavorable" : "Concurrence électrique croissante"
             ];
+            
+            // Ajouter préoccupations fiabilité si applicable
+            if (reliabilityIssue) {
+                concerns[0] = `Problèmes fiabilité ${engine.toUpperCase()} connus: ${reliabilityIssue.issues.join(', ')}`;
+            }
+            
+            let reasoning = `Analyse marché belge 2025`;
+            if (reliabilityIssue) {
+                reasoning += `. ATTENTION: Motorisation ${engine.toUpperCase()} avec problèmes fiabilité documentés (${reliabilityIssue.issues.join(', ')}). Dépréciation supplémentaire appliquée.`;
+            }
             
             return {
                 price: aiPrice,
                 adjustment: aiPrice - traditionalResult.price,
                 strengths,
                 concerns,
-                confidence: 6.5 + (Math.random() * 2), // 6.5-8.5
-                reasoning: `Analyse basée sur tendances marché belge 2025 et patterns sectoriels`
+                confidence: reliabilityIssue ? 4.5 : 7.2, // Baisse confiance si problème fiabilité
+                reasoning
             };
         }
 
         function showAIResults(traditional, ai) {
             // Final price (weighted average)
-            const finalPrice = Math.round((traditional.price * 0.65) + (ai.price * 0.35));
+            const finalPrice = Math.round((traditional.price * 0.70) + (ai.price * 0.30));
             document.getElementById('finalPriceAI').textContent = `€ ${finalPrice.toLocaleString()}`;
             
             // Comparison prices
